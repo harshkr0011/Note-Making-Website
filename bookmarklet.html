@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Notes Web Clipper</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .bookmarklet {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .instructions {
+            background-color: #f8f9fa;
+            border-left: 4px solid #007bff;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .features {
+            margin: 20px 0;
+        }
+        .features ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        .features li {
+            margin: 10px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+        .features li:before {
+            content: "✓";
+            color: #28a745;
+            position: absolute;
+            left: 0;
+        }
+        .copy-area {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            position: relative;
+        }
+        .copy-area pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .copy-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .copy-button:hover {
+            background-color: #0056b3;
+        }
+        .copy-success {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #28a745;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 3px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Nexus Notes Web Clipper</h1>
+    
+    <div class="instructions">
+        <h2>How to Install</h2>
+        <p>Method 1: Drag this button to your bookmarks bar:</p>
+        <a class="bookmarklet" href="javascript:(function(){var script=document.createElement('script');script.src='http://localhost/Nexus%20Notes/assets/js/web_clipper.js?'+new Date().getTime();document.body.appendChild(script);})();">Clip to Nexus Notes</a>
+        
+        <p>Method 2: Copy and paste this code into a new bookmark:</p>
+        <div class="copy-area">
+            <pre id="bookmarkletCode">javascript:(function(){var script=document.createElement('script');script.src='http://localhost/Nexus%20Notes/assets/js/web_clipper.js?'+new Date().getTime();document.body.appendChild(script);})();</pre>
+            <button class="copy-button" onclick="copyBookmarklet()">Copy Code</button>
+            <div class="copy-success" id="copySuccess">Copied!</div>
+        </div>
+    </div>
+
+    <div class="instructions">
+        <h2>How to Use</h2>
+        <ol>
+            <li>Navigate to any webpage you want to save</li>
+            <li>Optional: Select specific text you want to save</li>
+            <li>Click the "Clip to Nexus Notes" button in your bookmarks bar</li>
+            <li>Review and edit the content in the popup window</li>
+            <li>Add tags and select a folder (optional)</li>
+            <li>Click "Save" to store it in your Nexus Notes</li>
+        </ol>
+    </div>
+
+    <div class="features">
+        <h2>Features</h2>
+        <ul>
+            <li>Clip selected text or entire pages</li>
+            <li>Automatically captures page title and URL</li>
+            <li>Organize clips with folders</li>
+            <li>Add tags for better organization</li>
+            <li>Works on any webpage</li>
+            <li>Saves directly to your Nexus Notes account</li>
+        </ul>
+    </div>
+
+    <div class="instructions">
+        <h2>Important Notes</h2>
+        <ul>
+            <li>Make sure you're logged into Nexus Notes before using the Web Clipper</li>
+            <li>The Web Clipper works best with modern browsers (Chrome, Firefox, Safari, Edge)</li>
+            <li>Some websites may block content selection - in these cases, the clipper will try to capture the main content</li>
+        </ul>
+    </div>
+
+    <script>
+        function copyBookmarklet() {
+            const code = document.getElementById('bookmarkletCode').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                const success = document.getElementById('copySuccess');
+                success.style.display = 'block';
+                setTimeout(() => {
+                    success.style.display = 'none';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html> 
