@@ -48,6 +48,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
     <title>Login - Nexus Notes</title>
     <link rel="stylesheet" href="assets/css/style.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body class="auth-page">
     <div class="container">
@@ -60,6 +61,28 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
                         <?php if($error): ?>
                             <div class="alert alert-danger"><?php echo $error; ?></div>
                         <?php endif; ?>
+                        
+                        <div class="text-center mb-4">
+                            <div id="g_id_onload"
+                                data-client_id="YOUR_GOOGLE_CLIENT_ID"
+                                data-context="signin"
+                                data-callback="handleGoogleSignIn">
+                            </div>
+                            <div class="g_id_signin"
+                                data-type="standard"
+                                data-size="large"
+                                data-theme="outline"
+                                data-text="signin_with"
+                                data-shape="rectangular"
+                                data-logo_alignment="left">
+                            </div>
+                        </div>
+                        
+                        <div class="divider d-flex align-items-center mb-4">
+                            <div class="divider-line flex-grow-1"></div>
+                            <span class="divider-text px-3">or</span>
+                            <div class="divider-line flex-grow-1"></div>
+                        </div>
                         
                         <form method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
                             <div class="mb-3">
@@ -88,5 +111,29 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function handleGoogleSignIn(response) {
+            // Send the credential to your server
+            fetch('api/google_auth.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ credential: response.credential })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = 'dashboard.php';
+                } else {
+                    alert('Google sign-in failed: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred during Google sign-in');
+            });
+        }
+    </script>
 </body>
 </html> 

@@ -42,8 +42,7 @@ CREATE TABLE IF NOT EXISTS tags (
     name VARCHAR(50) NOT NULL,
     user_id INT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    UNIQUE KEY unique_tag_per_user (name, user_id)
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 -- Create note_tags table (many-to-many)
@@ -84,16 +83,6 @@ CREATE TABLE IF NOT EXISTS sessions (
     expires_at TIMESTAMP NULL,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
-
-
--- AI Settings Table
-CREATE TABLE IF NOT EXISTS ai_settings (
-    user_id INT PRIMARY KEY,
-    settings JSON,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-); 
 
 
 -- AI Note Summaries table

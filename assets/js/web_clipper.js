@@ -85,8 +85,7 @@
                 </div>
                 <div class="form-group">
                     <label for="clipperFolder">Folder:</label>
-                    <select id="clipperFolder">
-                        <option value="">No Folder</option>
+                    <select id="clipperFolder" required>
                     </select>
                 </div>
                 <div class="button-group">
@@ -196,6 +195,8 @@
         .then(data => {
             if (data.success) {
                 const folderSelect = document.getElementById('clipperFolder');
+                folderSelect.innerHTML = ''; // Clear any existing options
+                
                 data.folders.forEach(folder => {
                     const option = document.createElement('option');
                     option.value = folder.id;
@@ -206,6 +207,7 @@
         })
         .catch(error => {
             console.error('Error loading folders:', error);
+            alert('Error loading folders. Please try again.');
         });
     }
 

@@ -1,0 +1,12 @@
+# Enable access to images
+Options +FollowSymLinks
+RewriteEngine Off
+
+# Allow access to image files
+<FilesMatch "\.(jpg|jpeg|png|gif|webp)$">
+    Order Allow,Deny
+    Allow from all
+</FilesMatch>
+
+# Prevent directory listing
+Options -Indexes 

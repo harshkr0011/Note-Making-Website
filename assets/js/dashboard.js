@@ -1,4 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM Content Loaded - Starting initialization');
+    
     // Initialize Quill editors
     const editor = new Quill('#editor', {
         theme: 'snow',
@@ -8,6 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 ['bold', 'italic', 'underline', 'strike'],
                 [{ 'color': [] }, { 'background': [] }],
                 [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                [{ 'align': [] }],
                 ['link', 'image'],
                 ['clean']
             ]
@@ -28,9 +31,28 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Theme toggle functionality
-    const themeToggle = document.getElementById('theme-toggle');
-    const body = document.body;
+    // Initialize view editor (read-only)
+    const viewEditor = new Quill('#viewEditor', {
+        theme: 'snow',
+        readOnly: true,
+        modules: {
+            toolbar: false
+        }
+    });
+
+    document.getElementById('theme-toggle').addEventListener('click', function () {
+        const body = document.body;
+        const themeIcon = document.getElementById('theme-icon');
+      
+        body.classList.toggle('dark-mode');
+      
+        if (body.classList.contains('dark-mode')) {
+          themeIcon.src = 'dark-icon.png';
+        } else {
+          themeIcon.src = 'light-icon.png';
+        }
+      });
+      
     
     // Check for saved theme preference
     const savedTheme = localStorage.getItem('theme');
@@ -70,31 +92,112 @@ document.addEventListener('DOMContentLoaded', function() {
         fetch(`api/get_notes.php?folder_id=${folderId}`)
             .then(response => response.json())
             .then(notes => {
-                const notesList = document.getElementById('notesList');
-                notesList.innerHTML = '';
+                const notesContainer = document.getElementById('notesContainer');
+                notesContainer.innerHTML = '';
                 
                 notes.forEach(note => {
-                    const noteItem = document.createElement('div');
-                    noteItem.className = 'note-item';
-                    noteItem.setAttribute('data-note-id', note.id);
-                    noteItem.innerHTML = `
-                        <div class="note-content" onclick="loadNoteContent(${note.id})">
-                            <h3>${note.title}</h3>
-                            <p>${note.content.substring(0, 100)}...</p>
-                            <div class="note-tags">
-                                ${note.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                    const noteCard = document.createElement('div');
+                    noteCard.className = 'col-md-4 mb-4 note-card';
+                    noteCard.setAttribute('data-folder-id', note.folder_id || 'all');
+                    noteCard.innerHTML = `
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">${note.title}</h5>
+                                <p class="card-text">${note.content.substring(0, 100)}...</p>
+                                ${note.tags ? `
+                                    <div class="mb-2">
+                                        ${note.tags.map(tag => `<span class="badge bg-primary me-1">${tag}</span>`).join('')}
+                                    </div>
+                                ` : ''}
+                                <small class="text-muted">
+                                    Last updated: ${new Date(note.updated_at).toLocaleDateString()}<br>
+                                    Folder: ${note.folder_name || 'No Folder'}
+                                </small>
+                            </div>
+                            <div class="card-footer">
+                                <button class="btn btn-sm btn-info view-note" data-id="${note.id}">
+                                    <i class="fas fa-eye"></i> View
+                                </button>
+                                <button class="btn btn-sm btn-primary edit-note" data-id="${note.id}">
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
+                                <button class="btn btn-sm btn-danger delete-note" data-id="${note.id}">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-sm btn-success dropdown-toggle" data-bs-toggle="dropdown">
+                                        <i class="fas fa-download"></i> Export
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item export-pdf" href="#" data-id="${note.id}">Export as PDF</a></li>
+                                        <li><a class="dropdown-item export-md" href="#" data-id="${note.id}">Export as Markdown</a></li>
+                                    </ul>
+                                </div>
                             </div>
                         </div>
-                        <button class="delete-note-btn" onclick="event.stopPropagation(); deleteNote(${note.id})">
-                            <i class="fas fa-trash"></i>
-                        </button>
                     `;
-                    notesList.appendChild(noteItem);
+                    notesContainer.appendChild(noteCard);
                 });
+
+                // Reinitialize event listeners for the new note cards
+                initializeNoteEventListeners();
             })
             .catch(error => {
                 console.error('Error loading notes:', error);
             });
+    }
+
+    // Function to initialize note event listeners
+    function initializeNoteEventListeners() {
+        console.log('Initializing note event listeners...');
+        
+        // View note buttons
+        document.querySelectorAll('.view-note').forEach(button => {
+            button.addEventListener('click', function() {
+                const noteId = this.getAttribute('data-id');
+                console.log('Viewing note:', noteId);
+                viewNote(noteId);
+            });
+        });
+
+        // Edit note buttons
+        document.querySelectorAll('.edit-note').forEach(button => {
+            button.addEventListener('click', function() {
+                const noteId = this.getAttribute('data-id');
+                console.log('Editing note:', noteId);
+                editNote(noteId);
+            });
+        });
+
+        // Delete note buttons
+        document.querySelectorAll('.delete-note').forEach(button => {
+            button.addEventListener('click', function() {
+                const noteId = this.getAttribute('data-id');
+                console.log('Deleting note:', noteId);
+                if (confirm('Are you sure you want to delete this note?')) {
+                    deleteNote(noteId);
+                }
+            });
+        });
+
+        // Export buttons
+        document.querySelectorAll('.export-pdf').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                const noteId = this.getAttribute('data-id');
+                console.log('Exporting PDF for note:', noteId);
+                window.location.href = `api/export_pdf.php?id=${noteId}`;
+            });
+        });
+
+        document.querySelectorAll('.export-md').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                const noteId = this.getAttribute('data-id');
+                console.log('Exporting Markdown for note:', noteId);
+                window.location.href = `api/export_md.php?id=${noteId}`;
+            });
+        });
     }
 
     // Handle new note creation
@@ -231,20 +334,40 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.edit-note').forEach(button => {
         button.addEventListener('click', function() {
             const noteId = this.dataset.id;
-            const card = this.closest('.card');
-            const title = card.querySelector('.card-title').textContent;
-            const content = card.querySelector('.card-text').textContent;
-            const tags = Array.from(card.querySelectorAll('.badge')).map(badge => badge.textContent);
-            const folderId = card.closest('.note-card').dataset.folderId;
-
-            document.getElementById('editNoteId').value = noteId;
-            document.getElementById('editNoteTitle').value = title;
-            editEditor.root.innerHTML = content;
-            document.getElementById('editNoteTags').value = tags.join(', ');
-            document.getElementById('editNoteFolder').value = folderId;
-
-            const editModal = new bootstrap.Modal(document.getElementById('editNoteModal'));
-            editModal.show();
+            
+            // Fetch the full note content
+            fetch(`api/get_note.php?id=${noteId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const note = data.note;
+                        
+                        // Set the note ID
+                        document.getElementById('editNoteId').value = noteId;
+                        
+                        // Set the title
+                        document.getElementById('editNoteTitle').value = note.title;
+                        
+                        // Set the content in the editor
+                        editEditor.root.innerHTML = note.content;
+                        
+                        // Set the folder
+                        document.getElementById('editNoteFolder').value = note.folder_id || '';
+                        
+                        // Set the tags
+                        document.getElementById('editNoteTags').value = note.tags.join(', ');
+                        
+                        // Show the edit modal
+                        const editModal = new bootstrap.Modal(document.getElementById('editNoteModal'));
+                        editModal.show();
+                    } else {
+                        alert('Error loading note: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error loading note. Please try again.');
+                });
         });
     });
 
@@ -311,23 +434,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     alert('An error occurred while deleting the note');
                 });
             }
-        });
-    });
-
-    // Handle note export
-    document.querySelectorAll('.export-pdf').forEach(button => {
-        button.addEventListener('click', function(e) {
-            e.preventDefault();
-            const noteId = this.dataset.id;
-            window.location.href = `api/export_pdf.php?id=${noteId}`;
-        });
-    });
-
-    document.querySelectorAll('.export-md').forEach(button => {
-        button.addEventListener('click', function(e) {
-            e.preventDefault();
-            const noteId = this.dataset.id;
-            window.location.href = `api/export_md.php?id=${noteId}`;
         });
     });
 
@@ -451,23 +557,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 folderList.innerHTML = '';
                 
-                // Add "All Notes" option
-                const allNotesItem = document.createElement('div');
-                allNotesItem.className = 'folder-item' + (!selectedFolderId ? ' selected' : '');
-                allNotesItem.innerHTML = `
-                    <div class="folder-content">
-                        <i class="fas fa-folder"></i>
-                        <span>All Notes</span>
-                    </div>
-                `;
-                allNotesItem.onclick = () => {
-                    selectedFolderId = null;
-                    document.querySelectorAll('.folder-item').forEach(item => item.classList.remove('selected'));
-                    allNotesItem.classList.add('selected');
-                    loadNotes();
-                };
-                folderList.appendChild(allNotesItem);
-                
                 if (data.folders && Array.isArray(data.folders)) {
                     data.folders.forEach(folder => {
                         const folderItem = document.createElement('div');
@@ -529,4 +618,271 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Load folders when the page loads
     loadFolders();
+
+    // Handle view note button click
+    document.querySelectorAll('.view-note').forEach(button => {
+        button.addEventListener('click', function() {
+            const noteId = this.getAttribute('data-id');
+            viewNote(noteId);
+        });
+    });
+
+    // Function to view note
+    function viewNote(noteId) {
+        fetch(`api/get_note.php?id=${noteId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const note = data.note;
+                    document.getElementById('viewNoteTitle').textContent = note.title;
+                    
+                    // Set the content in the Quill editor
+                    viewEditor.root.innerHTML = note.content;
+                    
+                    document.getElementById('viewNoteUpdated').textContent = new Date(note.updated_at).toLocaleString();
+                    
+                    // Clear and populate tags
+                    const tagsContainer = document.getElementById('viewNoteTags');
+                    tagsContainer.innerHTML = '';
+                    if (note.tags && note.tags.length > 0) {
+                        note.tags.forEach(tag => {
+                            const tagElement = document.createElement('span');
+                            tagElement.className = 'badge bg-primary me-1';
+                            tagElement.textContent = tag;
+                            tagsContainer.appendChild(tagElement);
+                        });
+                    } else {
+                        tagsContainer.innerHTML = '<span class="text-muted">No tags</span>';
+                    }
+
+                    // Show the modal
+                    const viewModal = new bootstrap.Modal(document.getElementById('viewNoteModal'));
+                    viewModal.show();
+                } else {
+                    alert(data.message || 'Error loading note');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error loading note. Please try again.');
+            });
+    }
+
+    // Function to filter notes by folder
+    function filterNotesByFolder(folderId) {
+        console.log('Filtering notes for folder ID:', folderId);
+        const noteCards = document.querySelectorAll('.note-card');
+        console.log('Total note cards:', noteCards.length);
+
+        noteCards.forEach(card => {
+            const cardFolderId = card.getAttribute('data-folder-id');
+            console.log('Note card folder ID:', cardFolderId);
+
+            if (folderId === 'all' || cardFolderId === folderId || cardFolderId === 'all') {
+                console.log('Showing note for folder:', folderId);
+                card.style.display = 'block';
+            } else {
+                console.log('Hiding note not in folder:', folderId);
+                card.style.display = 'none';
+            }
+        });
+
+        // Reinitialize all button event listeners after filtering
+        initializeNoteEventListeners();
+    }
+
+    // Initialize folder filtering
+    function initializeFolderFiltering() {
+        console.log('Initializing folder filtering...');
+        
+        // Get all folder items
+        const folderItems = document.querySelectorAll('.folder-item');
+        console.log('Found folder items:', folderItems.length);
+        
+        // Add click handler to each folder
+        folderItems.forEach(folder => {
+            folder.addEventListener('click', function() {
+                const folderId = this.getAttribute('data-folder-id');
+                console.log('Clicked folder ID:', folderId);
+                
+                // Remove active class from all folders
+                folderItems.forEach(f => f.classList.remove('active'));
+                
+                // Add active class to clicked folder
+                this.classList.add('active');
+                
+                // Filter notes based on the selected folder
+                filterNotesByFolder(folderId);
+            });
+        });
+
+        // Set the first folder as active by default and load its notes
+        if (folderItems.length > 0) {
+            folderItems[0].classList.add('active');
+            filterNotesByFolder(folderItems[0].getAttribute('data-folder-id'));
+        }
+    }
+
+    // Call the initialization function
+    initializeFolderFiltering();
+    console.log('Folder filtering initialized');
+
+    // Add animation keyframes
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    `;
+    document.head.appendChild(style);
+
+    // Handle image upload in Quill
+    editor.getModule('toolbar').addHandler('image', function() {
+        const input = document.createElement('input');
+        input.setAttribute('type', 'file');
+        input.setAttribute('accept', 'image/*');
+        input.click();
+
+        input.onchange = function() {
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const range = editor.getSelection();
+                    editor.insertEmbed(range.index, 'image', e.target.result);
+                };
+                reader.readAsDataURL(file);
+            }
+        };
+    });
+
+    // Update note function
+    async function updateNote() {
+        const noteId = document.getElementById('noteId').value;
+        const title = document.getElementById('noteTitle').value;
+        const content = editor.root.innerHTML;
+        const folderId = document.getElementById('folderSelect').value;
+        const tags = Array.from(document.querySelectorAll('.tag-badge')).map(tag => tag.textContent.trim());
+
+        try {
+            const formData = new FormData();
+            formData.append('note_id', noteId);
+            formData.append('title', title);
+            formData.append('content', content);
+            formData.append('folder_id', folderId);
+            formData.append('tags', JSON.stringify(tags));
+
+            const response = await fetch('api/update_note.php', {
+                method: 'POST',
+                body: formData
+            });
+
+            // Check if the response is OK
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            // Try to parse the response as JSON
+            let data;
+            try {
+                data = await response.json();
+            } catch (e) {
+                console.error('Error parsing JSON:', e);
+                throw new Error('Invalid response from server');
+            }
+
+            if (data.success) {
+                $('#editNoteModal').modal('hide');
+                loadNotes();
+                showAlert('Note updated successfully', 'success');
+            } else {
+                showAlert(data.message || 'Error updating note', 'danger');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showAlert('Error updating note: ' + error.message, 'danger');
+        }
+    }
+
+    // Handle logout button click
+    document.getElementById('logoutBtn').addEventListener('click', function(e) {
+        e.preventDefault(); // Prevent default link behavior
+        
+        // Show confirmation dialog
+        if (confirm('Are you sure you want to logout?')) {
+            // If user confirms, redirect to logout page
+            window.location.href = 'logout.php';
+        }
+    });
+
+    // Function to edit a note
+    function editNote(noteId) {
+        console.log('Loading note for editing:', noteId);
+        fetch(`api/get_note.php?id=${noteId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const note = data.note;
+                    // Set note ID
+                    document.getElementById('editNoteId').value = noteId;
+                    // Set title
+                    document.getElementById('editNoteTitle').value = note.title;
+                    // Set content in editor
+                    editEditor.root.innerHTML = note.content;
+                    // Set folder
+                    document.getElementById('editNoteFolder').value = note.folder_id || '';
+                    // Set tags
+                    document.getElementById('editNoteTags').value = note.tags ? note.tags.join(', ') : '';
+                    
+                    // Show edit modal
+                    const editModal = new bootstrap.Modal(document.getElementById('editNoteModal'));
+                    editModal.show();
+                } else {
+                    alert('Error loading note: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error loading note. Please try again.');
+            });
+    }
+
+    // Function to delete a note
+    function deleteNote(noteId) {
+        console.log('Deleting note:', noteId);
+        const formData = new FormData();
+        formData.append('note_id', noteId);
+
+        fetch('api/delete_note.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Remove the note card from the DOM
+                const noteCard = document.querySelector(`.note-card[data-note-id="${noteId}"]`);
+                if (noteCard) {
+                    noteCard.remove();
+                }
+                // Show success message
+                alert('Note deleted successfully');
+                // Reload the page to refresh the notes list
+                location.reload();
+            } else {
+                alert(data.message || 'Error deleting note');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error deleting note. Please try again.');
+        });
+    }
 }); 

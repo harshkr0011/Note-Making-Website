@@ -4,15 +4,13 @@ require_once 'config/database.php';
 class AIService {
     private $db;
     private $apiKey;
-    private $apiEndpoint = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
+    // Update to the correct Gemini endpoint
+    private $apiEndpoint = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 
     public function __construct() {
-        require_once __DIR__ . '/../config/database.php';
         $database = new Database();
         $this->db = $database->getConnection();
-        
-        // Load API key from environment or config
-        $this->apiKey = getenv('GEMINI_API_KEY') ?: 'YOUR_API_KEY';
+        $this->apiKey = 'AIzaSyDQyJ4G_3sOxGxd6pIuNS_69iLDYI-7Z4w';
     }
 
     public function generateSummary($noteId, $content, $length = 'medium') {
@@ -39,45 +37,22 @@ class AIService {
 
     public function chat($userId, $message) {
         try {
-            // For now, return a simple response
-            return "Hello! I received your message: " . htmlspecialchars($message);
-            
-            // Uncomment this when you have a real API key
-            /*
-            $data = [
-                'contents' => [
-                    [
-                        'parts' => [
-                            ['text' => $message]
-                        ]
-                    ]
-                ]
-            ];
+            $response = $this->callGeminiAPI($message);
+            $aiResponse = $response['candidates'][0]['content']['parts'][0]['text'];
 
-            $ch = curl_init($this->apiEndpoint . '?key=' . $this->apiKey);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+            // Save chat history
+            $query = "INSERT INTO ai_chat_history (user_id, message, response) 
+                     VALUES (:user_id, :message, :response)";
+            $stmt = $this->db->prepare($query);
+            $stmt->bindParam(":user_id", $userId);
+            $stmt->bindParam(":message", $message);
+            $stmt->bindParam(":response", $aiResponse);
+            $stmt->execute();
 
-            $response = curl_exec($ch);
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            curl_close($ch);
-
-            if ($httpCode !== 200) {
-                throw new Exception("API request failed with status code: " . $httpCode);
-            }
-
-            $result = json_decode($response, true);
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new Exception("Invalid JSON response from API");
-            }
-
-            return $result['candidates'][0]['content']['parts'][0]['text'] ?? 'Sorry, I could not process your request.';
-            */
+            return $aiResponse;
         } catch (Exception $e) {
-            error_log("AI Service Error: " . $e->getMessage());
-            return "Hello! I received your message: " . htmlspecialchars($message);
+            error_log("AI Chat Error: " . $e->getMessage());
+            return "I'm sorry, I encountered an error. Please try again later.";
         }
     }
 
@@ -117,44 +92,29 @@ class AIService {
     }
 
     public function getAISettings($userId) {
-        try {
-            $query = "SELECT settings FROM ai_settings WHERE user_id = :user_id";
-            $stmt = $this->db->prepare($query);
-            $stmt->bindParam(":user_id", $userId);
-            $stmt->execute();
-            
-            $row = $stmt->fetch(PDO::FETCH_ASSOC);
-            return $row ? json_decode($row['settings'], true) : [
-                'auto_summarize' => false,
-                'summary_length' => 'medium',
-                'ai_model' => 'gemini-pro'
-            ];
-        } catch (Exception $e) {
-            error_log("Error getting AI settings: " . $e->getMessage());
-            return [
-                'auto_summarize' => false,
-                'summary_length' => 'medium',
-                'ai_model' => 'gemini-pro'
-            ];
-        }
+        $query = "SELECT * FROM ai_settings WHERE user_id = :user_id";
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(":user_id", $userId);
+        $stmt->execute();
+
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
     public function updateAISettings($userId, $settings) {
-        try {
-            $query = "INSERT INTO ai_settings (user_id, settings) 
-                     VALUES (:user_id, :settings) 
-                     ON DUPLICATE KEY UPDATE settings = :settings";
-            
-            $stmt = $this->db->prepare($query);
-            $stmt->bindParam(":user_id", $userId);
-            $settingsJson = json_encode($settings);
-            $stmt->bindParam(":settings", $settingsJson);
-            
-            return $stmt->execute();
-        } catch (Exception $e) {
-            error_log("Error updating AI settings: " . $e->getMessage());
-            return false;
-        }
+        $query = "INSERT INTO ai_settings (user_id, auto_summarize, summary_length, ai_model) 
+                 VALUES (:user_id, :auto_summarize, :summary_length, :ai_model)
+                 ON DUPLICATE KEY UPDATE 
+                 auto_summarize = :auto_summarize,
+                 summary_length = :summary_length,
+                 ai_model = :ai_model";
+        
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(":user_id", $userId);
+        $stmt->bindParam(":auto_summarize", $settings['auto_summarize']);
+        $stmt->bindParam(":summary_length", $settings['summary_length']);
+        $stmt->bindParam(":ai_model", $settings['ai_model']);
+        
+        return $stmt->execute();
     }
 }
-?> 
+?>

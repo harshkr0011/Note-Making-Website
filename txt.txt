@@ -1,10 +1,8 @@
-//1. login.php - User Authentication Page
-http://localhost/Nexus%20Notes/login.php
+http://localhost/Nexus%20Notes/index.php
 
-//2. dashboard.php - User Dashboard Page
-http://localhost/Nexus%20Notes/dashboard.php?folder=all#
 
-//3. phpMyAdmin - SQL Database Interface
+
+
 http://localhost/phpmyadmin/index.php?route=/sql&pos=0&db=nexus_notes&table=users
 
 

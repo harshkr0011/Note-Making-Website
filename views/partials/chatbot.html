@@ -1,0 +1,10 @@
+<!-- Chatbot Modal -->
+<div id="chatbot-modal" class="chatbot-modal" style="display:none; position:fixed; right:20px; bottom:60px; width:350px; background:#fff; border:1px solid #ccc; z-index:9999;">
+    <div id="chatbot-header">
+        <span>AI Chatbot</span>
+        <button onclick="document.getElementById('chatbot-modal').style.display='none'">✖</button>
+    </div>
+    <div id="chatbot-messages" style="height:300px; overflow-y:auto;"></div>
+    <input type="text" id="chatbot-input" placeholder="Ask something..." />
+    <button onclick="sendChatbotMessage()">Send</button>
+</div>

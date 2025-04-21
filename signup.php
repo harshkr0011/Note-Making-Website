@@ -68,18 +68,19 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sign Up - Nexus Notes</title>
     <link rel="stylesheet" href="assets/css/style.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body class="auth-page">
-    <div class="container">
+    <div class="container-fluid px-3">
         <div class="row justify-content-center align-items-center min-vh-100">
-            <div class="col-md-6">
-                <div class="card">
+            <div class="col-12 col-sm-10 col-md-8 col-lg-6 col-xl-4">
+                <div class="card compact">
                     <div class="card-body">
-                        <h2 class="text-center mb-4">Create Your Account</h2>
+                        <h2 class="text-center">Create Account</h2>
                         
                         <?php if($error): ?>
                             <div class="alert alert-danger"><?php echo $error; ?></div>
@@ -88,6 +89,28 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
                         <?php if($success): ?>
                             <div class="alert alert-success"><?php echo $success; ?></div>
                         <?php endif; ?>
+                        
+                        <div class="text-center">
+                            <div id="g_id_onload"
+                                data-client_id="YOUR_GOOGLE_CLIENT_ID"
+                                data-context="signup"
+                                data-callback="handleGoogleSignIn">
+                            </div>
+                            <div class="g_id_signin"
+                                data-type="standard"
+                                data-size="large"
+                                data-theme="outline"
+                                data-text="signup_with"
+                                data-shape="rectangular"
+                                data-logo_alignment="left">
+                            </div>
+                        </div>
+                        
+                        <div class="divider">
+                            <div class="divider-line flex-grow-1"></div>
+                            <span class="divider-text px-2">or</span>
+                            <div class="divider-line flex-grow-1"></div>
+                        </div>
                         
                         <form method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
                             <div class="mb-3">
@@ -115,7 +138,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
                             </div>
                         </form>
                         
-                        <div class="text-center mt-3">
+                        <div class="text-center">
                             <p>Already have an account? <a href="login.php">Login</a></p>
                             <p><a href="index.php">Back to Home</a></p>
                         </div>
@@ -126,5 +149,28 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function handleGoogleSignIn(response) {
+            fetch('api/google_auth.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ credential: response.credential })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = 'dashboard.php';
+                } else {
+                    alert('Google sign-in failed: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred during Google sign-in');
+            });
+        }
+    </script>
 </body>
 </html> 

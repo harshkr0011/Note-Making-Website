@@ -28,8 +28,6 @@ if(isset($_SESSION['user_id'])) {
             background: var(--background);
             color: #333;
             overflow-x: hidden;
-            margin: 0;
-            padding: 0;
         }
         .landing-page {
             position: relative;
@@ -117,7 +115,7 @@ if(isset($_SESSION['user_id'])) {
             transform: scale(1.2) rotate(-5deg);
             fill: var(--secondary);
         }
-        .testimonial-item, .review-item {
+        .testimonial-item {
             padding: 25px;
             border-radius: 15px;
             background: var(--card-bg);
@@ -125,7 +123,7 @@ if(isset($_SESSION['user_id'])) {
             transition: transform 0.5s ease, box-shadow 0.5s ease;
             margin-bottom: 30px;
         }
-        .testimonial-item:hover, .review-item:hover {
+        .testimonial-item:hover {
             transform: translateY(-5px);
             box-shadow: var(--hover-shadow);
         }
@@ -139,8 +137,8 @@ if(isset($_SESSION['user_id'])) {
             animation: gradientShift 10s infinite alternate;
         }
         @keyframes gradientShift {
-            0% { background: linear-gradient(135deg, var(--primary),rgb(179, 221, 234)); }
-            100% { background: linear-gradient(135deg,rgb(155, 214, 231), var(--accent)); }
+            0% { background: linear-gradient(135deg, var(--primary), #00c4ff); }
+            100% { background: linear-gradient(135deg, #00c4ff, var(--accent)); }
         }
         .cta-section .btn {
             font-size: 1.3rem;
@@ -160,7 +158,7 @@ if(isset($_SESSION['user_id'])) {
         }
         h1, h2 {
             color: var(--accent);
-            text-shadow: 1px 1px 3px rgba(238, 15, 15, 0.1);
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
         }
         .lead {
             color: #555;
@@ -169,33 +167,6 @@ if(isset($_SESSION['user_id'])) {
         svg {
             max-width: 100%;
             height: auto;
-        }
-        .footer {
-            background: linear-gradient(135deg, #0288d1, #007bff);
-            color: #fff;
-            text-align: center;
-            padding: 40px 0;
-            margin-top: 20px;
-            border-top-left-radius: 15px;
-            border-top-right-radius: 15px;
-            box-shadow: var(--shadow);
-        }
-        .footer a {
-            color: #fff;
-            margin: 0 15px;
-            font-size: 1.5rem;
-            transition: transform 0.3s ease, color 0.3s ease;
-        }
-        .footer a:hover {
-            transform: scale(1.2);
-            color: var(--secondary);
-        }
-        .footer p {
-            margin-bottom: 20px;
-        }
-        .rating {
-            color: var(--secondary);
-            font-size: 1.2rem;
         }
         @media (max-width: 768px) {
             .section {
@@ -209,10 +180,6 @@ if(isset($_SESSION['user_id'])) {
                 font-size: 1.1rem;
                 padding: 12px 30px;
             }
-            .footer a {
-                margin: 0 10px;
-                font-size: 1.3rem;
-            }
         }
     </style>
 </head>
@@ -225,26 +192,26 @@ if(isset($_SESSION['user_id'])) {
 
         <!-- Hero Section -->
         <section class="section" id="hero">
-            <div class="section-content">
-    <div class="container">
-                    <div class="row align-items-center">
-                        <div class="col-lg-6">
-                            <h1 class="fade-in">Welcome to Nexus Notes</h1>
-                            <p class="lead fade-in">Your all-in-one solution for digital note-taking and organization.</p>
-                            <div class="mt-4 fade-in">
-                                <a href="login.php" class="btn btn-primary me-2">Login</a>
-                                <a href="signup.php" class="btn btn-outline-primary">Sign Up</a>
+                    <div class="section-content">
+                        <div class="container">
+                            <div class="row align-items-center">
+                                <div class="col-lg-6">
+                                    <h1 class="fade-in">Welcome to Nexus Notes</h1>
+                                    <p class="lead fade-in">Your all-in-one solution for digital note-taking and organization.</p>
+                                    <div class="mt-4 fade-in">
+                                        <a href="login.php" class="btn btn-primary me-2">Login</a>
+                                        <a href="signup.php" class="btn btn-outline-primary">Sign Up</a>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 fade-in">
+                                    <img src="assets/images/notes-illustration.svg" alt="Notes Illustration" class="img-fluid">
+                                    <!-- Add another SVG -->
+                                    <!-- <img src="assets/images/organize-illustration.svg" alt="Organize Illustration" class="img-fluid mt-4"> -->
+                                </div>
                             </div>
                         </div>
-                        <div class="col-lg-6 fade-in">
-                            <img src="assets/images/notes-illustration.svg" alt="Notes Illustration" class="img-fluid">
-                            <!-- Add another SVG -->
-                            <!-- <img src="assets/images/organize-illustration.svg" alt="Organize Illustration" class="img-fluid mt-4"> -->
-                        </div>
                     </div>
-                </div>
-            </div>
-        </section>
+                </section>
 
         <!-- Features Section -->
         <section class="section" id="features">
@@ -464,7 +431,7 @@ if(isset($_SESSION['user_id'])) {
                                     <path d="M10 15 L10 25 L15 30 L20 25 V15 H10 Z M20 15 L20 25 L25 30 L30 25 V15 H20 Z" fill="url(#quoteGrad)"/>
                                 </svg>
                                 <p>"Nexus Notes transformed my workflow with its AI search!"</p>
-                                <h5 class="mt-3">Ankit Saurav, Project Manager</h5>
+                                <h5 class="mt-3">Jane Doe, Project Manager</h5>
                             </div>
                         </div>
                         <div class="col-md-6 fade-in">
@@ -479,57 +446,7 @@ if(isset($_SESSION['user_id'])) {
                                     <path d="M10 15 L10 25 L15 30 L20 25 V15 H10 Z M20 15 L20 25 L25 30 L30 25 V15 H20 Z" fill="url(#quoteGrad2)"/>
                                 </svg>
                                 <p>"Dark mode and sync are perfect for my studies!"</p>
-                                <h5 class="mt-3">Raunak Kumar, Student</h5>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Reviews Section -->
-        <section class="section" id="reviews">
-            <div class="section-content">
-                <div class="container">
-                    <h2 class="text-center mb-5 fade-in">User Reviews</h2>
-                    <div class="row">
-                        <div class="col-md-4 fade-in">
-                            <div class="review-item">
-                                <p>"Amazing tool for organizing my notes with AI features!"</p>
-                                <div class="rating">
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                </div>
-                                <h5 class="mt-3">Aditya Gupta, Freelancer</h5>
-                            </div>
-                        </div>
-                        <div class="col-md-4 fade-in">
-                            <div class="review-item">
-                                <p>"The sync feature is a game-changer for my team!"</p>
-                                <div class="rating">
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                </div>
-                                <h5 class="mt-3">Harsh Kumar, Developer</h5>
-                            </div>
-                        </div>
-                        <div class="col-md-4 fade-in">
-                            <div class="review-item">
-                                <p>"Love the dark mode and quick search functionality!"</p>
-                                <div class="rating">
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                </div>
-                                <h5 class="mt-3">Prakhar Mishra, Student</h5>
+                                <h5 class="mt-3">John Smith, Student</h5>
                             </div>
                         </div>
                     </div>
@@ -565,20 +482,6 @@ if(isset($_SESSION['user_id'])) {
                 </div>
             </div>
         </section>
-
-        <!-- Footer Section -->
-        <footer class="footer fade-in">
-            <div class="container">
-                <p>© 2025 Nexus Notes. All rights reserved.</p>
-                <div>
-                    <a href="https://www.linkedin.com/in/harsh-kumar-1b359b21a/" target="_blank"><i class="fab fa-linkedin"></i></a>
-                    <a href="https://www.youtube.com/@KnowledgeWallahHarsh" target="_blank"><i class="fab fa-youtube"></i></a>
-                    <a href="https://www.instagram.com/kaushik0419/?hl=en" target="_blank"><i class="fab fa-instagram"></i></a>
-                    <a href="https://github.com/harshkr0011" target="_blank"><i class="fab fa-github"></i></a>
-                    <a href="https://www.facebook.com" target="_blank"><i class="fab fa-facebook"></i></a>
-            </div>
-        </div>
-        </footer>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -619,4 +522,4 @@ if(isset($_SESSION['user_id'])) {
         });
     </script>
 </body>
-</html> 
+</html>

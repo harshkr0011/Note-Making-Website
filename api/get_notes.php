@@ -19,9 +19,10 @@ try {
     $db = $database->getConnection();
     
     // Build query based on folder ID
-    if ($folderId) {
-        $query = "SELECT n.*, GROUP_CONCAT(t.name) as tags 
+    if ($folderId && $folderId !== 'all') {
+        $query = "SELECT n.*, f.name as folder_name, GROUP_CONCAT(DISTINCT t.name) as tags 
                  FROM notes n 
+                 LEFT JOIN folders f ON n.folder_id = f.id
                  LEFT JOIN note_tags nt ON n.id = nt.note_id 
                  LEFT JOIN tags t ON nt.tag_id = t.id 
                  WHERE n.user_id = ? AND n.folder_id = ?
@@ -30,8 +31,9 @@ try {
         $stmt = $db->prepare($query);
         $stmt->execute([$_SESSION['user_id'], $folderId]);
     } else {
-        $query = "SELECT n.*, GROUP_CONCAT(t.name) as tags 
+        $query = "SELECT n.*, f.name as folder_name, GROUP_CONCAT(DISTINCT t.name) as tags 
                  FROM notes n 
+                 LEFT JOIN folders f ON n.folder_id = f.id
                  LEFT JOIN note_tags nt ON n.id = nt.note_id 
                  LEFT JOIN tags t ON nt.tag_id = t.id 
                  WHERE n.user_id = ?

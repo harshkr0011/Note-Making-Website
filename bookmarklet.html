@@ -7,32 +7,59 @@
     <style>
         body {
             font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
             max-width: 800px;
             margin: 0 auto;
+            background-color: white;
             padding: 20px;
-            line-height: 1.6;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
         }
         .bookmarklet {
             display: inline-block;
-            padding: 10px 20px;
-            background-color: #007bff;
+            padding: 6px 12px;
+            background-color: #4CAF50;
             color: white;
             text-decoration: none;
-            border-radius: 5px;
-            margin: 20px 0;
+            border-radius: 4px;
+            font-size: 14px;
+            margin: 10px 0;
+            cursor: move;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: background-color 0.3s;
+        }
+        .bookmarklet:hover {
+            background-color: #45a049;
         }
         .instructions {
-            background-color: #f8f9fa;
-            border-left: 4px solid #007bff;
-            padding: 20px;
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 4px;
             margin: 20px 0;
         }
+        .instructions ol {
+            padding-left: 20px;
+        }
         .features {
-            margin: 20px 0;
+            margin-top: 30px;
+        }
+        .features h2 {
+            color: #333;
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 5px;
         }
         .features ul {
             list-style-type: none;
-            padding-left: 0;
+            padding: 0;
         }
         .features li {
             margin: 10px 0;
@@ -41,9 +68,15 @@
         }
         .features li:before {
             content: "✓";
-            color: #28a745;
+            color: #4CAF50;
             position: absolute;
             left: 0;
+        }
+        .note {
+            background-color: #e7f3fe;
+            border-left: 4px solid #2196F3;
+            padding: 10px;
+            margin: 20px 0;
         }
         .copy-area {
             background-color: #f8f9fa;

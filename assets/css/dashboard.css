@@ -180,7 +180,7 @@
 }
 
 .theme-toggle-btn.dark {
-    background: linear-gradient(145deg, #2d3748, #1a202c);
+    background: linear-gradient(145deg, #055cf2, #1054da);
     box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2),
                -2px -2px 4px rgba(255, 255, 255, 0.1);
     color: #e2e8f0;
